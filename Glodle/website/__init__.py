@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
+from flask_login import LoginManager
+from .database_setup import add_albums
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -19,18 +21,23 @@ def create_app():
     app.register_blueprint(view, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     
-    from .models import User, Song
+    from .models import User, Song, Guess, Album
 
-    db.init_app(app)
+    db.init_app(app) 
 
-    if not path.exists('instance/' + DB_NAME):
-        with app.app_context():
-            db.create_all()
-        print('Created Database!')
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
+
+    with app.app_context():
+        db.create_all()
+        add_albums()
+    print('Created Database!')
+
+
 
     return app
-
-def create_database():
-    if not path.exists('website/' + DB_NAME):
-        db.create_all()
-        print('Created Database!')

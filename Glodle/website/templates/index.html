@@ -42,7 +42,9 @@ a {
 </style>
 </head>
 <body>
+
     
+  
 
 
     <!--navbar-->
@@ -51,15 +53,27 @@ a {
         <a class="navbar-brand" href="#" > <img src="static/assets/Glo-Gang-Logo.png" alt="Glo-Gang-Logo" width="59" height="60"> GLODLE</a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
             <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/sign-up">Sign up</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="/login">Login</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" href="/stats">Stats</a>
-              </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link active" href="/stats">Stats</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/account">{{ user.username }}</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link active" href="/logout">Logout</a>
+                </li>
+            
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/sign-up">Sign up</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="/login">Login</a>
+                  </li>
+                {% endif %}
+                
             </ul>
     </div>
 </nav>
@@ -70,13 +84,8 @@ a {
     <div class="row justify-content-center">
         <div class="col-md-5 text-center ">
             
-            
             <h1><span> <img src="static/assets/leadneverfollow.png" alt="Glo-Gang-Logo" width="50" height="100"> </span> GLODLE </h1>
-            
-        
 
-            
-            
         </div>
 
 
@@ -87,9 +96,6 @@ a {
         <div class="col-md-12 text-center">
             <h2 class="h6">Daily Chief Keef Lyric Challenge</h2>
         </div>
-
-
-
         
     </div>
 </div>
@@ -110,46 +116,85 @@ a {
 <!--Game- itself -->
 <section id="the game">
     <div class="container-lg">
-        <div class="row justify-content-center g-2">
 
+        {% if user.is_authenticated %}
+        {% for guess in user.guesses %}
+        <div class="row justify-content-center">
+            <div class="col-md-5 text-center">
+                <p>{{ guess.id }} lol guess</p>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form class="row justify-content-center g-2" method="POST">
+            {% if user.is_authenticated %}
             <div class="col-1 text-center">
 
-                <p>Guess 1/6</p>
+                <p>Guess {{ user.guesses_today + 1}}/6</p>
                 
             </div>
+            {% if user.guesses_today < 5 %}
+            <div class="col-3 text-center text-md-start">
+                    <select name="albumGuess" id="albumGuess" class="form-select">
+                        <option value="1">Guess album</option>
+                        <option value="2">Option 2</option>
+                        <option value="3">Option 3</option>
+                        <option value="4">Option 4</option>
+                    </select>
+            </div>
+            
+            <div class="col-md-5 text-center text-md-start">
+                
+                    <select name="songGuess" id="songGuess" class="form-select">
+                        <option selected>Guess song</option>
+                        <option value="1">Option 1</option>
+                        <option value="2">Option 2</option>
+
+                    </select>
+                               
+            </div>
+            <div class="col-1 text-center">
+                <button type="submit" class="btn btn-light" >Guess</button>
+            </div>
+            {% else %}
+            <div class="col-8 text-center">
+                <h2 class="h3">You fucking lost</h2>
+            </div>
+            {%endif%}
+
+            {% else %}
+
+            <div class="col-1 text-center">
+                <p>Guess 0/6</p>
+            </div>
+            
 
             <div class="col-3 text-center text-md-start">
-
-                
-                
-
-
-                <select name="guessAlbum" id="guess" class="form-select">
+                <select name="albumGuess" id="albumGuess" class="form-select">
                     <option value="1">Guess album</option>
                     <option value="2">Option 2</option>
                     <option value="3">Option 3</option>
                     <option value="4">Option 4</option>
-
                 </select>
-
-                
             </div>
+        
             <div class="col-md-5 text-center text-md-start">
-
-                <select name="guessSong" id="guess" class="form-select" disabled>
+            
+                <select name="songGuess" id="songGuess" class="form-select">
                     <option selected>Guess song</option>
-                
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
 
                 </select>
-
-                
+                           
             </div>
             <div class="col-1 text-center">
-
-                <button type="button" >Guess</button>
-                
+                <button type="submit" class="btn btn-light"  disabled>Guess</button>
             </div>
-        </div>
+            {% endif %}
+
+        </form>
     </div>
 </section>
 

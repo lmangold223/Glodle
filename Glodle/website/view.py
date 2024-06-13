@@ -1,38 +1,31 @@
 from flask import Blueprint, render_template, request, flash
+from flask_login import login_required, current_user
+from . models import User, Guess, Album, Song
+from . import db
+from .database_setup import get_songs
+
 
 view = Blueprint('view', __name__)
 
-@view.route('/')
+@view.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('index.html')
+   
 
-@view.route('/login', methods=['GET', 'POST'])
-def login():
-    data = request.form
-    print(data)
-    return render_template('login.html')
-
-@view.route('/sign-up', methods=['GET', 'POST'])
-def signup():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        username = request.form.get('username')
+        albumGuess = request.form.get('albumGuess')
+        songGuess = request.form.get('songGuess')
+        
+        guess = Guess(song_id = songGuess, user_id = current_user.id)
+        current_user.guesses_today += 1
+        db.session.add(guess)
+        db.session.commit()
+        
 
-        if len(email) < 4:
-            flash('Email must be greater than 4 characters', category='error')
-        elif len(password) < 7:
-            flash('Password must be at least 7 characters', category='error')
-        elif len(username) < 2:
-            flash('Username must be at least 2 characters', category='error')
-        else:
-            flash('Account created!', category='success')
-       
-        print(email, password, username)
 
-    
-    return render_template('sign-up.html')
+    return render_template('index.html', user = current_user)
 
-@view.route('/stats')
+
+@view.route('/stats') 
+@login_required
 def stats():
-    return render_template('stats.html')
+    return render_template('stats.html', user = current_user)
