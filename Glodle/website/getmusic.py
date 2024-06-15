@@ -1,7 +1,7 @@
 import time
 import os
 import lyricsgenius as lg
-
+import csv
 
 genius = lg.Genius("BoI01P-rwaozXg13Tz2I_YqFayWUfjdyKNqHxBtytaKMkzdHxYhRJKPzQ41NEntR")
 
@@ -17,15 +17,31 @@ def get_songs():
 
     for album in albumsWanted:
         as_dict = genius.search_album(album, "Chief Keef").to_dict()
-
+        print(as_dict)
         albums_release_dict[album] = as_dict['release_date_components'] 
         album_art_dict[album] = as_dict['cover_art_url']
 
         tracklist = []
 
         for track in as_dict['tracks']:
-            tracklist.append(track['song']['full_title'])
+            tracklist.append(track['song']['full_title'].replace("\xa0", ""))
             album_tracklist_dict[album] = tracklist
             
     
     return albums_release_dict, album_tracklist_dict, album_art_dict
+
+
+with open("songs.csv", 'w', newline= '') as f:
+
+        
+    albums_release_dict, album_tracklist_dict, album_art_dict = get_songs()
+
+    print(albums_release_dict)
+    print(album_tracklist_dict)
+    print(album_art_dict)
+
+
+    writer = csv.writer(f)
+    writer.writerow(['album', 'year', 'cover', "tracklist"])
+    for album in album_tracklist_dict:
+        writer.writerow([album, albums_release_dict[album]['year'], album_art_dict[album], album_tracklist_dict[album]])

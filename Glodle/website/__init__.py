@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
-from .database_setup import add_albums
+from flask_wtf import FlaskForm
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -35,7 +35,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        add_albums()
+        #add_albums()
     print('Created Database!')
 
 

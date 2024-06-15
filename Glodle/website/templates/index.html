@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 
     <title>GLODLE</title> 
 
@@ -37,6 +38,7 @@ section {
 a {
     font-weight: bold;
 }
+
 
 
 </style>
@@ -121,76 +123,65 @@ a {
         {% for guess in user.guesses %}
         <div class="row justify-content-center">
             <div class="col-md-5 text-center">
-                <p>{{ guess.id }} lol guess</p>
+                <p>you guessed {{ guess.song_title }}</p>
             </div>
         </div>
         {% endfor %}
         {% endif %}
 
-        <form class="row justify-content-center g-2" method="POST">
-            {% if user.is_authenticated %}
+
+        {% if user.is_authenticated %}
+        <form class="row justify-content-center g-3" method="POST">
+            
             <div class="col-1 text-center">
 
                 <p>Guess {{ user.guesses_today + 1}}/6</p>
                 
             </div>
             {% if user.guesses_today < 5 %}
-            <div class="col-3 text-center text-md-start">
-                    <select name="albumGuess" id="albumGuess" class="form-select">
-                        <option value="1">Guess album</option>
-                        <option value="2">Option 2</option>
-                        <option value="3">Option 3</option>
-                        <option value="4">Option 4</option>
-                    </select>
-            </div>
-            
-            <div class="col-md-5 text-center text-md-start">
+           
+            <div class="col-2 text-center">
+                {{ form.csrf_token }}
+                {{ form.album(**{"hx-get": "/get_songs", "hx-target": "#song"}) }}
                 
-                    <select name="songGuess" id="songGuess" class="form-select">
-                        <option selected>Guess song</option>
-                        <option value="1">Option 1</option>
-                        <option value="2">Option 2</option>
+                
+            </div>
 
-                    </select>
-                               
+            <div class="col-3">
+                {{ form.song() }}
             </div>
-            <div class="col-1 text-center">
-                <button type="submit" class="btn btn-light" >Guess</button>
+
+            <div class="col-2 text-center">
+                <button type="submit" class="btn btn-light">Guess</button>
             </div>
+        </form>
             {% else %}
-            <div class="col-8 text-center">
+            <div class="col-8">
                 <h2 class="h3">You fucking lost</h2>
             </div>
             {%endif%}
-
+       
             {% else %}
+        
+        <form class="row justify-content-center g-2" method="POST">
 
             <div class="col-1 text-center">
                 <p>Guess 0/6</p>
             </div>
-            
-
-            <div class="col-3 text-center text-md-start">
-                <select name="albumGuess" id="albumGuess" class="form-select">
-                    <option value="1">Guess album</option>
-                    <option value="2">Option 2</option>
-                    <option value="3">Option 3</option>
-                    <option value="4">Option 4</option>
-                </select>
+                     
+            <div class="col-2 text-center">
+                {{ form.csrf_token }}
+                {{ form.album(**{"hx-get": "/get_songs", "hx-target": "#song"}) }}
+                
+                
             </div>
-        
-            <div class="col-md-5 text-center text-md-start">
-            
-                <select name="songGuess" id="songGuess" class="form-select">
-                    <option selected>Guess song</option>
-                    <option value="1">Option 1</option>
-                    <option value="2">Option 2</option>
 
-                </select>
-                           
+            <div class="col-2">
+                {{ form.song() }}
             </div>
-            <div class="col-1 text-center">
-                <button type="submit" class="btn btn-light"  disabled>Guess</button>
+
+            <div class="col-2 text-center">
+                <button type="submit" class="btn btn-light" disabled>Guess</button>
             </div>
             {% endif %}
 
