@@ -87,8 +87,10 @@ def home():
 
     bar_of_the_day = Day.query.filter_by(date = today).first().bar
 
+    song_of_the_day_album_title = Album.query.filter_by(id = Song.query.filter_by(title = song_of_the_day).first().album).first().title
+    song_of_the_day_album_year = Album.query.filter_by(id = Song.query.filter_by(title = song_of_the_day).first().album).first().year
 
-    return render_template('index.html', user = current_user, form = AlbumSelect, songs = songslist, song_of_the_day = song_of_the_day, bar_of_the_day = bar_of_the_day)
+    return render_template('index.html', user = current_user, form = AlbumSelect, songs = songslist, song_of_the_day = song_of_the_day, bar_of_the_day = bar_of_the_day, album_title = song_of_the_day_album_title, album_year = song_of_the_day_album_year)
 
 
 @view.route('/stats') 
