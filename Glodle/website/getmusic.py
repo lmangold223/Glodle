@@ -2,6 +2,7 @@ import time
 import os
 import lyricsgenius as lg
 import csv
+import random
 
 genius = lg.Genius("BoI01P-rwaozXg13Tz2I_YqFayWUfjdyKNqHxBtytaKMkzdHxYhRJKPzQ41NEntR")
 
@@ -9,6 +10,8 @@ albumsWanted = ["Finally Rich", "Finally Rich(Deluxe)", "Back from the dead", "A
 
 
 
+
+#retrieves chief keef's entire discography and stores it in a csv file
 def get_songs():
 
     albums_release_dict = {}
@@ -31,17 +34,13 @@ def get_songs():
     return albums_release_dict, album_tracklist_dict, album_art_dict
 
 
-with open("songs.csv", 'w', newline= '') as f:
-
-        
+with open('website/songs.csv', 'w', newline='', encoding= "UTF-8") as csvfile:
+    fieldnames = ['Album', 'Year', 'Cover', 'Tracklist']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
     albums_release_dict, album_tracklist_dict, album_art_dict = get_songs()
-
-    print(albums_release_dict)
-    print(album_tracklist_dict)
-    print(album_art_dict)
-
-
-    writer = csv.writer(f)
-    writer.writerow(['album', 'year', 'cover', "tracklist"])
-    for album in album_tracklist_dict:
-        writer.writerow([album, albums_release_dict[album]['year'], album_art_dict[album], album_tracklist_dict[album]])
+    
+    for album in albumsWanted:
+        writer.writerow({'Album': album, 'Year': albums_release_dict[album], 'Cover': album_art_dict[album], 'Tracklist': album_tracklist_dict[album]})
+        
+    print("done")

@@ -3,10 +3,12 @@
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
 
-
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
+
+    <!-- htmx -->
     <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 
     <title>GLODLE</title> 
@@ -45,22 +47,19 @@ a {
 </head>
 <body>
 
-    
-  
-
 
     <!--navbar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-lg">
         <a class="navbar-brand" href="#" > <img src="static/assets/Glo-Gang-Logo.png" alt="Glo-Gang-Logo" width="59" height="60"> GLODLE</a>
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+        <div class="collapse navbar-collapse" id="navbarToggler">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link active" href="/stats">Stats</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/account">{{ user.username }}</a>
+                    <a class="nav-link active" href="/profile">{{ user.username }}</a>
                 </li>
                 
                 <li class="nav-item">
@@ -76,7 +75,12 @@ a {
                   </li>
                 {% endif %}
                 
+                <li class="nav-item">
+                    <a class="nav-link active" href="/drilldle">DRILLDLE</a>
+                </li>
+            
             </ul>
+          
     </div>
 </nav>
 
@@ -108,7 +112,7 @@ a {
     <div class="container-lg">
         <div class="row justify-content-center">
             <div class="col-md-5 text-center">
-                <h2 class="h3">"Example song lyrics here"</h2>
+                <h2 class="h3"> "{{ bar_of_the_day }}" </h2>
                 
             </div>
         </div>
@@ -121,10 +125,27 @@ a {
 
         {% if user.is_authenticated %}
         {% for guess in user.guesses %}
-        <div class="row justify-content-center">
-            <div class="col-md-5 text-center">
-                <p>you guessed {{ guess.song_title }}</p>
+
+        <div class="row justify-content-center g-2">
+                
+            <div class="col-2 text-center">
+                <div class = container>
+                    <img src = "{{ guess.cover_link }}" alt = "{{ guess.from_album }}" width = "100" height = "100">
+                </div>
             </div>
+
+            <div class="col-2 text-center bg-success">
+                <h2 class="h2"> {{ guess.from_album }} </h2>
+            </div>
+
+            <div class="col-2 text-center bg-danger">
+                <h2 class="h2"> {{ guess.song_title}} </h2>
+            </div>
+
+            <div class="col-2 text-center bg-success">
+                <h2 class="h2"> {{ guess.album_year }} </h2>
+            </div>
+           
         </div>
         {% endfor %}
         {% endif %}
@@ -132,19 +153,22 @@ a {
 
         {% if user.is_authenticated %}
         <form class="row justify-content-center g-3" method="POST">
+
+    
             
+            {% if user.guesses_today < 5 %}
+         
+
+
             <div class="col-1 text-center">
 
                 <p>Guess {{ user.guesses_today + 1}}/6</p>
                 
             </div>
-            {% if user.guesses_today < 5 %}
-           
+
             <div class="col-2 text-center">
                 {{ form.csrf_token }}
                 {{ form.album(**{"hx-get": "/get_songs", "hx-target": "#song"}) }}
-                
-                
             </div>
 
             <div class="col-3">
@@ -160,6 +184,7 @@ a {
                 <h2 class="h3">You fucking lost</h2>
             </div>
             {%endif%}
+            
        
             {% else %}
         
@@ -171,7 +196,7 @@ a {
                      
             <div class="col-2 text-center">
                 {{ form.csrf_token }}
-                {{ form.album(**{"hx-get": "/get_songs", "hx-target": "#song"}) }}
+                {{ form.album(**{"hx-get": "/song_options", "hx-target": "#song"}) }}
                 
                 
             </div>
@@ -184,8 +209,9 @@ a {
                 <button type="submit" class="btn btn-light" disabled>Guess</button>
             </div>
             {% endif %}
-
         </form>
+
+        
     </div>
 </section>
 

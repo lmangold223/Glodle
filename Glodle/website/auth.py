@@ -6,9 +6,11 @@ from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint('auth', __name__)
 
-
+# login route
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+
+    #if server receives a POST request from the login form it will check if the email and password are correct and if the user exists
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -28,9 +30,14 @@ def login():
     
     return render_template('login.html', user = current_user)
 
+
+
+# sign-up route
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def signup():
+    
 
+    #if server receives a POST request from the sign-up form it will check if the email and username are unique and if the password is long enough
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
@@ -61,6 +68,10 @@ def signup():
 
 @auth.route('/logout')
 @login_required
+
+# logout route
 def logout():
+
+    #when routed to /logout the user will be logged out and redirected to the login page
     logout_user()
     return render_template('login.html', user = current_user)

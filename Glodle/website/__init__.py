@@ -7,12 +7,14 @@ from flask_wtf import FlaskForm
 db = SQLAlchemy()
 DB_NAME = 'database.db'
 
+#initializes the flask app and database
+
 def create_app():
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'mysecretkey'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-
+    app.config['UPLOAD_FOLDER'] = 'website/static/files'
    
     
     from .view import view
@@ -35,7 +37,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        #add_albums()
+        
     print('Created Database!')
 
 
