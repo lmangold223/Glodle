@@ -89,10 +89,9 @@ a {
     <div class="row justify-content-center">
         <div class="col-md-5 text-center ">
             
-            <h1><span> <img src="static/assets/leadneverfollow.png" alt="Glo-Gang-Logo" width="50" height="100"> </span> GLODLE </h1>
+          <img src="static/assets/leadneverfollow.png" alt="Glo-Gang-Logo" width="50" height="100"> <img src="static/assets/Glodle.png" alt="Glodle-logo" width="355" height="65">
 
         </div>
-
 
     </div>
 
@@ -136,7 +135,7 @@ a {
             </div>
 
             <!-- if guess is correct, display green, else display red -->
-            {% if guess.album_from == album_title %}
+            {% if guess.from_album == album_title %}
             <div class="col-2 text-center bg-success">
                 <h2 class="h2"> {{ guess.from_album }} </h2>
             </div>
@@ -145,7 +144,6 @@ a {
                 <h2 class="h2"> {{ guess.from_album }} </h2>
             </div>
             {% endif %}
-
 
             {% if guess.song_title == song_of_the_day %}
             <div class="col-2 text-center bg-success">
@@ -172,8 +170,8 @@ a {
         {% endif %}
 
         <!-- only logged in users can guess for now-->
-        {% if user.is_authenticated %}
-        <form class="row justify-content-center g-3" method="POST">
+        {% if user.is_authenticated and guessed_correctly == False %}
+        <form class="row justify-content-center g-3" method="POST" action="/">
 
     
             <!-- only allow 5 guesses per day -->
@@ -188,7 +186,7 @@ a {
             <!--htmx request for selected album songs-->
             <div class="col-2 text-center">
                 {{ form.csrf_token }}
-                {{ form.album(**{"hx-get": "/song_option", "hx-target": "#song"}) }}
+                {{ form.album(**{"hx-get": "/song_options", "hx-target": "#song"}) }}
             </div>
 
             <div class="col-3">
@@ -199,26 +197,33 @@ a {
                 <button type="submit" class="btn btn-light">Guess</button>
             </div>
         </form>
+
+        <!-- if user has guessed 6 times, display win or lose message -->
             {% else %}
             <div class="col-8">
                 <h2 class="h3">You lost</h2>
             </div>
             {%endif%}
-            
-       
-            {% else %}
         
-        <form class="row justify-content-center g-2" method="POST">
+        {% elif user.is_authenticated and guessed_correctly == True %}
+            <div class="col-8 text-center">
+                <h2 class="h3">You won!</h2>
+            </div>
+        {%endif%}
+
+
+        {% if user.is_anonymous %}
+        <!-- if user is not logged in, display lyric of the day but do not allow guessing -->    
+        
+        <form class="row justify-content-center g-2" method="POST" action="/">
 
             <div class="col-1 text-center">
-                <p>Guess 0/6</p>
+                <p>Guess 1/6</p>
             </div>
                      
             <div class="col-2 text-center">
                 {{ form.csrf_token }}
                 {{ form.album(**{"hx-get": "/song_options", "hx-target": "#song"}) }}
-                
-                
             </div>
 
             <div class="col-2">
@@ -228,8 +233,9 @@ a {
             <div class="col-2 text-center">
                 <button type="submit" class="btn btn-light" disabled>Guess</button>
             </div>
-            {% endif %}
         </form>
+        {% endif %}
+        
 
         
     </div>

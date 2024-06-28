@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, make_response
 from flask_login import login_required, current_user
 from . models import User, Guess, Album, Song, Day
 import csv
 from . import db
 from .forms import AlbumForm, UploadForm
-from .set_song import set_song_auto, pick_lyrics
+from .set_song import set_song_auto, pick_lyrics, set_song_manual
 import time
 from werkzeug.utils import secure_filename
 from .crud_operations import *
@@ -24,8 +24,6 @@ def home():
     
     #if the album table is empty, the csv file will be read and the data will be added to the database
     if len(album) == 0:
-        AlbumSelect = AlbumForm()
-        AlbumSelect.album.choices = [(a.id, a.title) for a in album]
         with open('website/songs.csv', encoding= "UTF-8") as csvfile:
         
             
@@ -58,12 +56,15 @@ def home():
                                 print(new_song.title + "a: id  " + str(new_song.album))
                                 db.session.add(new_song)
                                 db.session.commit()
+
+        AlbumSelect = AlbumForm()
+        AlbumSelect.album.choices = [(a.id, a.title) for a in album]
     
     
     songslist = Song.query.all()
 
-    #handles the form submission for song guessing
-    if request.method == 'POST':
+    #handles the form submission for song guessing from logged in users
+    if request.method == 'POST' and current_user.is_authenticated == True:
         songGuess = request.form.get('song')
         songTitle = Song.query.filter_by(id = songGuess).first().title
         
@@ -72,17 +73,15 @@ def home():
         current_user.guesses_today += 1
 
         db.session.add(guess)
-        db.session.commit()\
-        
+        db.session.commit()
 
     #if the song of the day has not been set, it will be set
     if Day.query.filter_by(date = time.strftime("%Y-%m-%d")).first() == None:
         set_song_auto()
     
     today = time.strftime("%Y-%m-%d")
-    print(today)
 
-    #grabs the song and lyric of the day
+    #gets the song and lyric of the day
     song_of_the_day = Day.query.filter_by(date = today).first().song
 
     bar_of_the_day = Day.query.filter_by(date = today).first().bar
@@ -90,7 +89,16 @@ def home():
     song_of_the_day_album_title = Album.query.filter_by(id = Song.query.filter_by(title = song_of_the_day).first().album).first().title
     song_of_the_day_album_year = Album.query.filter_by(id = Song.query.filter_by(title = song_of_the_day).first().album).first().year
 
-    return render_template('index.html', user = current_user, form = AlbumSelect, songs = songslist, song_of_the_day = song_of_the_day, bar_of_the_day = bar_of_the_day, album_title = song_of_the_day_album_title, album_year = song_of_the_day_album_year)
+    guessed_correctly = False
+
+    #checks if the user has guessed the song of the day and passes variable to the template
+
+    if current_user.is_anonymous == False:
+        for guess in current_user.guesses:
+            if guess.song_title == song_of_the_day:
+                guessed_correctly = True
+
+    return render_template('index.html', user = current_user, form = AlbumSelect, songs = songslist, song_of_the_day = song_of_the_day, bar_of_the_day = bar_of_the_day, album_title = song_of_the_day_album_title, album_year = song_of_the_day_album_year, guessed_correctly = guessed_correctly)
 
 
 @view.route('/stats') 
@@ -100,7 +108,7 @@ def stats():
 
 
 
-# song options route for htmx request allowing for dynamic song selection
+# song options endpoint for htmx request allowing for dynamic song selection
 @view.route('/song_options')
 def get_songs():
     
@@ -120,7 +128,7 @@ def profile():
 
     if form.validate_on_submit():
 
-        file = form.file.data #grabs file
+        file = form.file.data 
         file.save('website/static/files/' + secure_filename(file.filename))
         update_profile_pic(current_user.username, file.filename)
         flash('Profile Picture Updated!', 'success')
@@ -128,3 +136,33 @@ def profile():
 
 
     return render_template('profile.html', user = current_user, form = form)
+
+
+
+#DOES NOT DO ANYTHING USEFUL PLS YET IGNORE
+@view.route('/set_guess_cookie', methods=['POST', 'GET'])
+def set_guess_cookie():
+
+    saved_guesses = request.cookies.get('guesses')
+    guess = request.form.get('song')
+
+    if saved_guesses == None:
+
+        songGuess = request.form.get('song')
+        songTitle = Song.query.filter_by(id = songGuess).first().title
+
+        response = make_response(render_template('index.html', user = current_user))
+        response.set_cookie('guesses', f"{songTitle},")
+
+    else:
+        response = make_response(render_template('index.html', user = current_user))
+        response.set_cookie('guesses', f"{saved_guesses},{guess},")
+
+    
+
+    return response
+    
+
+
+
+
