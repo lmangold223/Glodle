@@ -4,7 +4,7 @@ import lyricsgenius as lg
 import csv
 import random
 
-genius = lg.Genius("BoI01P-rwaozXg13Tz2I_YqFayWUfjdyKNqHxBtytaKMkzdHxYhRJKPzQ41NEntR")
+genius = lg.Genius("BoI01P")
 
 albumsWanted = ["Finally Rich", "Finally Rich(Deluxe)", "Back from the dead", "Almighty So", "Big Gucci Sosa", "Back from the dead 2", "The Leek vol 1", "The Leek vol 2", "Bang 3", "Bang 3 pt 2", "Feed the streets", "Finally Rollin 2", "Nobody 2", "thot breaker", "The w", "Dedication", "the leek vol 4", "the leek vol 5", "the glofiles pt1", "the glofiles pt2", "Mansion Musick", "Back from the dead 3", "the leek vol 6", "the leek vol 7", "glotoven", "camp glotiggy", "the leek vol 8", "the glofiles pt3", "the glofiles pt4", "4nem", "dirty nachos", "almighty so 2" ]
 
